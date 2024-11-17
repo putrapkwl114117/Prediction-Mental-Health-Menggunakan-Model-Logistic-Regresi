@@ -4,7 +4,7 @@ import numpy as np
 
 # Fungsi untuk menyimpan hasil ke database
 def save_to_database(data, prediction):
-    connection = None  # Inisialisasi variabel connection
+    connection = None  
     try:
         connection = mysql.connector.connect(
             host='localhost',
@@ -15,11 +15,9 @@ def save_to_database(data, prediction):
         if connection.is_connected():
             cursor = connection.cursor()
 
-            # Konversi elemen data ke tipe Python standar
             data = [int(x) if isinstance(x, np.integer) else float(x) if isinstance(x, np.floating) else x for x in data]
             prediction = int(prediction) if isinstance(prediction, np.integer) else prediction
             
-            # Query untuk menyimpan hasil prediksi
             query = """INSERT INTO screening_results (
                      anxiety_level, self_esteem, mental_health_history,
                      depression, headache, blood_pressure, sleep_quality, quest8, noise_level, safety, quest11, quest12, academic_performance,

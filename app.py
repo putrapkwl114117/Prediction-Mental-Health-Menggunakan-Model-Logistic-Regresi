@@ -5,18 +5,14 @@ from database import save_to_database, get_statistics
 import re
 
 app = Flask(__name__)
-app.secret_key = 'berkah_abadi2024'  # Pastikan Anda memiliki secret key untuk flash messages
+app.secret_key = 'berkah_abadi2024'
 
-# Load model dari folder `models`
 with open('models/model_stres_level.pkl', 'rb') as file:
     model = pickle.load(file)
 
 # Fungsi untuk memvalidasi input
 def is_valid_input(data):
-    # Pastikan semua inputan adalah angka jika diperlukan
-    
     try:
-        # Ubah data ke tipe float dan cek jika ada data yang tidak bisa diubah
         data = [float(item) if item != '' else None for item in data]
     except ValueError:
         return False
@@ -24,7 +20,6 @@ def is_valid_input(data):
 
 
 def sanitize_input(input_string):
-    # Jika input_string adalah None, kembalikan string kosong atau nilai default
     if input_string is None:
         return ''
     return re.sub(r'<[^>]*>', '', input_string) 
@@ -43,7 +38,6 @@ def validate_input(data):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        # Mengambil data dari form dan melakukan sanitasi untuk setiap item
         data = [
             sanitize_input(request.form.get('anxiety_level')),
             sanitize_input(request.form.get('self_esteem')),
@@ -74,22 +68,18 @@ def index():
             flash('Semua inputan harus diisi dengan benar. Periksa kembali inputan kamu.', 'danger')
             return redirect(url_for('screening'))
         
-        # Validasi inputan
         if any(item is None or item == '' for item in data):
             flash('Semua inputan harus diisi. Periksa kembali inputan kamu.', 'danger') 
             return redirect(url_for('screening'))
 
-        # Validasi format input
         if not is_valid_input(data):
             flash('Input yang Anda masukkan tidak valid. Periksa kembali inputan Anda.', 'danger')
             return redirect(url_for('screening'))
 
         try:
-            # Konversi data menjadi array numpy dan prediksi
             data = np.array(data, dtype=float).reshape(1, -1)
-            prediction = model.predict(data)[0]  # Ambil hasil prediksi
-            
-            # Simpan hasil ke database
+            prediction = model.predict(data)[0] 
+        
             save_to_database(data.flatten().tolist(), prediction)
 
             # Flash pesan berdasarkan level stres
